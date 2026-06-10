@@ -18,6 +18,8 @@ jobs:
         run: pip install -r requirements.txt
       - name: Update played matches (rolls Elo & form)
         run: python -m src.update_played_matches
+      - name: Per-match score report
+        run: python main.py --predict-scores
       - name: Re-simulate with latest model
         run: python main.py --simulate-tournament --sims 5000
       - name: Commit refreshed outputs

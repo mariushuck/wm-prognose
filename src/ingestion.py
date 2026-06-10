@@ -21,7 +21,7 @@ import pandas as pd
 from . import paths
 from .config import data_sources, source_cfg
 from .data_sources import (
-    elo_internal, fbref, fifa_ranking, odds, results, statsbomb,
+    elo_internal, fifa_ranking, odds, results, statsbomb,
     transfermarkt, venues, weather,
 )
 
@@ -30,7 +30,6 @@ from .data_sources import (
 LOADERS = {
     "odds": odds,
     "fifa_ranking": fifa_ranking,
-    "fbref": fbref,
     "transfermarkt": transfermarkt,
     "statsbomb": statsbomb,
     "weather": weather,

@@ -1,0 +1,159 @@
+# FIFA World Cup 2026 structure: 48 teams, 12 groups of 4.
+# Names match the `home_team`/`away_team` spelling in the martj42 results.csv dataset.
+
+format:
+  n_groups: 12
+  teams_per_group: 4
+  advance_top_n: 2
+  best_thirds: 8
+
+points:
+  win: 3
+  draw: 1
+  loss: 0
+
+groups:
+  A: ["Mexico", "South Africa", "South Korea", "Czech Republic"]
+  B: ["Canada", "Bosnia and Herzegovina", "Qatar", "Switzerland"]
+  C: ["Brazil", "Morocco", "Haiti", "Scotland"]
+  D: ["United States", "Paraguay", "Australia", "Turkey"]
+  E: ["Germany", "Curaçao", "Ivory Coast", "Ecuador"]
+  F: ["Netherlands", "Japan", "Sweden", "Tunisia"]
+  G: ["Belgium", "Egypt", "Iran", "New Zealand"]
+  H: ["Spain", "Cape Verde", "Saudi Arabia", "Uruguay"]
+  I: ["France", "Senegal", "Iraq", "Norway"]
+  J: ["Argentina", "Algeria", "Austria", "Jordan"]
+  K: ["Portugal", "DR Congo", "Uzbekistan", "Colombia"]
+  L: ["England", "Croatia", "Ghana", "Panama"]
+
+# -----------------------------------------------------------------------------
+# GROUP STAGE (Matches 1-72)
+# -----------------------------------------------------------------------------
+group_stage:
+  - ["Mexico", "South Africa"]               # Match 1
+  - ["South Korea", "Czech Republic"]        # Match 2
+  - ["Canada", "Bosnia and Herzegovina"]     # Match 3
+  - ["United States", "Paraguay"]            # Match 4
+  - ["Haiti", "Scotland"]                    # Match 5
+  - ["Australia", "Turkey"]                  # Match 6
+  - ["Brazil", "Morocco"]                    # Match 7
+  - ["Qatar", "Switzerland"]                 # Match 8
+  - ["Ivory Coast", "Ecuador"]               # Match 9
+  - ["Germany", "Curaçao"]                   # Match 10
+  - ["Netherlands", "Japan"]                 # Match 11
+  - ["Sweden", "Tunisia"]                    # Match 12
+  - ["Saudi Arabia", "Uruguay"]              # Match 13
+  - ["Spain", "Cape Verde"]                  # Match 14
+  - ["Iran", "New Zealand"]                  # Match 15
+  - ["Belgium", "Egypt"]                     # Match 16
+  - ["France", "Senegal"]                    # Match 17
+  - ["Iraq", "Norway"]                       # Match 18
+  - ["Argentina", "Algeria"]                 # Match 19
+  - ["Austria", "Jordan"]                    # Match 20
+  - ["Ghana", "Panama"]                      # Match 21
+  - ["England", "Croatia"]                   # Match 22
+  - ["Portugal", "DR Congo"]                 # Match 23
+  - ["Uzbekistan", "Colombia"]               # Match 24
+  - ["Czech Republic", "South Africa"]       # Match 25
+  - ["Switzerland", "Bosnia and Herzegovina"]# Match 26
+  - ["Canada", "Qatar"]                      # Match 27
+  - ["Mexico", "South Korea"]                # Match 28
+  - ["Brazil", "Haiti"]                      # Match 29
+  - ["Scotland", "Morocco"]                  # Match 30
+  - ["Turkey", "Paraguay"]                   # Match 31
+  - ["United States", "Australia"]           # Match 32
+  - ["Germany", "Ivory Coast"]               # Match 33
+  - ["Ecuador", "Curaçao"]                   # Match 34
+  - ["Netherlands", "Sweden"]                # Match 35
+  - ["Tunisia", "Japan"]                     # Match 36
+  - ["Uruguay", "Cape Verde"]                # Match 37
+  - ["Spain", "Saudi Arabia"]                # Match 38
+  - ["Belgium", "Iran"]                      # Match 39
+  - ["New Zealand", "Egypt"]                 # Match 40
+  - ["Norway", "Senegal"]                    # Match 41
+  - ["France", "Iraq"]                       # Match 42
+  - ["Argentina", "Austria"]                 # Match 43
+  - ["Jordan", "Algeria"]                    # Match 44
+  - ["England", "Ghana"]                     # Match 45
+  - ["Panama", "Croatia"]                    # Match 46
+  - ["Portugal", "Uzbekistan"]               # Match 47
+  - ["Colombia", "DR Congo"]                 # Match 48
+  - ["Scotland", "Brazil"]                   # Match 49
+  - ["Morocco", "Haiti"]                     # Match 50
+  - ["Switzerland", "Canada"]                # Match 51
+  - ["Bosnia and Herzegovina", "Qatar"]      # Match 52
+  - ["Czech Republic", "Mexico"]             # Match 53
+  - ["South Africa", "South Korea"]          # Match 54
+  - ["Curaçao", "Ivory Coast"]               # Match 55
+  - ["Ecuador", "Germany"]                   # Match 56
+  - ["Japan", "Sweden"]                      # Match 57
+  - ["Tunisia", "Netherlands"]               # Match 58
+  - ["Turkey", "United States"]              # Match 59
+  - ["Paraguay", "Australia"]                # Match 60
+  - ["Norway", "France"]                     # Match 61
+  - ["Senegal", "Iraq"]                      # Match 62
+  - ["Egypt", "Iran"]                        # Match 63
+  - ["New Zealand", "Belgium"]               # Match 64
+  - ["Cape Verde", "Saudi Arabia"]           # Match 65
+  - ["Uruguay", "Spain"]                     # Match 66
+  - ["Panama", "England"]                    # Match 67
+  - ["Croatia", "Ghana"]                     # Match 68
+  - ["Algeria", "Austria"]                   # Match 69
+  - ["Jordan", "Argentina"]                  # Match 70
+  - ["Colombia", "Portugal"]                 # Match 71
+  - ["DR Congo", "Uzbekistan"]               # Match 72
+
+# -----------------------------------------------------------------------------
+# KNOCKOUT STAGE (Matches 73-104)
+# -----------------------------------------------------------------------------
+
+# Round of 32
+# "WXX" implies Winner of Match XX. Matches mapped 1:1 from the official schedule.
+round_of_32:
+  - ["2A", "2B"]       # Match 73
+  - ["1E", "3rd-1"]    # Match 74
+  - ["1F", "2C"]       # Match 75
+  - ["1C", "2F"]       # Match 76
+  - ["1I", "3rd-2"]    # Match 77
+  - ["2E", "2I"]       # Match 78
+  - ["1A", "3rd-3"]    # Match 79
+  - ["1L", "3rd-4"]    # Match 80
+  - ["1D", "3rd-5"]    # Match 81
+  - ["1G", "3rd-6"]    # Match 82
+  - ["2K", "2L"]       # Match 83
+  - ["1H", "2J"]       # Match 84
+  - ["1B", "3rd-7"]    # Match 85
+  - ["1J", "2H"]       # Match 86
+  - ["1K", "3rd-8"]    # Match 87
+  - ["2D", "2G"]       # Match 88
+
+# Round of 16
+round_of_16:
+  - ["W74", "W77"]     # Match 89
+  - ["W73", "W75"]     # Match 90
+  - ["W76", "W78"]     # Match 91
+  - ["W79", "W80"]     # Match 92
+  - ["W83", "W84"]     # Match 93
+  - ["W81", "W82"]     # Match 94
+  - ["W86", "W88"]     # Match 95
+  - ["W85", "W87"]     # Match 96
+
+# Quarterfinals
+quarter_finals:
+  - ["W89", "W90"]     # Match 97
+  - ["W93", "W94"]     # Match 98
+  - ["W91", "W92"]     # Match 99
+  - ["W95", "W96"]     # Match 100
+
+# Semifinals
+semi_finals:
+  - ["W97", "W98"]     # Match 101
+  - ["W99", "W100"]    # Match 102
+
+# Third-Place Play-off
+third_place:
+  - ["L101", "L102"]   # Match 103
+
+# Final
+final:
+  - ["W101", "W102"]   # Match 104

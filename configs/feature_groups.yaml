@@ -1,11 +1,12 @@
 # Toggle feature groups for ablation tests (which group buys how much LogLoss?).
 # A group switched off (or whose source data is absent) contributes no columns.
 feature_groups:
-  basic:           true    # Elo, form, rest, neutral, H2H — always available
+  basic:           true    # Elo, form, neutral, H2H — always available (Layer 1)
+  ranking:         false   # needs Layer 2 (fifa_ranking) active
   market_odds:     false   # needs Layer 2 (odds) active
   squad_value:     false   # needs Layer 3 (transfermarkt) active
   advanced_stats:  false   # needs Layer 4 (statsbomb) active
-  context:         false   # needs Layer 5 (venues/weather/injuries)
+  context:         false   # rest days (always) + weather (Layer 5)
 
 # Tunables shared by feature builders.
 params:

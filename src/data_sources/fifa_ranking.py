@@ -10,6 +10,7 @@ from __future__ import annotations
 import pandas as pd
 
 from .. import paths
+from .team_aliases import normalize
 
 FIFA_COLUMNS = ["rank_date", "team", "rank", "points"]
 
@@ -34,4 +35,5 @@ def load(cfg: dict, force: bool = False) -> pd.DataFrame:
     for col in FIFA_COLUMNS:
         if col not in df.columns:
             df[col] = pd.NA
-    return df[FIFA_COLUMNS]
+    df["team"] = df["team"].map(normalize)            # match martj42 spelling
+    return df[FIFA_COLUMNS].sort_values("rank_date").reset_index(drop=True)

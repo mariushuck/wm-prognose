@@ -27,6 +27,9 @@ odds:
   sport: "soccer_fifa_world_cup"
   regions: "eu"
   markets: "h2h"
+  # Optional: a hand-supplied historical odds CSV activates odds for TRAINING.
+  # Columns: date, home_team, away_team, odds_home, odds_draw, odds_away
+  history_file: "odds_history.csv"   # under data/raw/odds/ (optional)
 
 fifa_ranking:
   enabled: false
@@ -34,11 +37,6 @@ fifa_ranking:
   filename: "fifa_ranking.csv"
 
 # ---------------- Layer 3 — Kader & Marktwerte ----------------
-fbref:
-  enabled: false
-  rate_limit_seconds: 4        # be polite; see §9 legal notes
-  seasons: ["2022", "2023", "2024"]
-
 transfermarkt:
   enabled: false
   # No scraping (§9). Manual file only.
@@ -60,7 +58,3 @@ weather:
 venues:
   enabled: true                # cheap local YAML; used for travel distances
   config_file: "venues_2026.yaml"
-
-injuries:
-  enabled: false
-  filename: "injuries.yaml"    # manual, under data/raw/

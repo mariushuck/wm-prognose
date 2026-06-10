@@ -36,6 +36,11 @@ def _points(gd: int) -> int:
     return 3 if gd > 0 else (1 if gd == 0 else 0)
 
 
+def prepare(matches_df: pd.DataFrame, context: dict) -> None:
+    """Populate the form/h2h snapshots used by ``fixture_features`` (via build)."""
+    build(matches_df, context)
+
+
 def build(matches_df: pd.DataFrame, context: dict) -> pd.DataFrame:
     """Compute per-match basic features over the full history (no leakage).
 

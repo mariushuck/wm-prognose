@@ -4,10 +4,10 @@ from __future__ import annotations
 import pandas as pd
 
 from src import config
-from src.data_sources import (
-    fbref, fifa_ranking, odds, statsbomb, transfermarkt, weather,
+from src.data_sources import fifa_ranking, odds, statsbomb, transfermarkt, weather
+from src.features import (
+    advanced_stats, assemble, basic, context as context_feat, market, ranking, squad,
 )
-from src.features import advanced_stats, basic, context as context_feat, market
 
 
 def test_configs_load():
@@ -19,7 +19,6 @@ def test_configs_load():
 DISABLED_LOADERS = [
     (odds, odds.ODDS_COLUMNS),
     (fifa_ranking, fifa_ranking.FIFA_COLUMNS),
-    (fbref, fbref.FBREF_COLUMNS),
     (transfermarkt, transfermarkt.TM_COLUMNS),
     (statsbomb, statsbomb.STATSBOMB_COLUMNS),
     (weather, weather.WEATHER_COLUMNS),
@@ -44,7 +43,6 @@ def test_basic_features_build(sample_results):
     feats = basic.build(df, context)
     assert list(feats.columns) == basic.COLUMNS
     assert len(feats) == len(df)
-    # snapshots were populated for the fixture path
     assert context["form"] and "Germany" in context["form"]
 
     fixture = basic.fixture_features("Germany", "Spain", neutral=True, context=context)
@@ -52,9 +50,23 @@ def test_basic_features_build(sample_results):
     assert fixture["neutral"] == 1
 
 
-def test_stub_feature_groups_contribute_no_columns(sample_results):
-    ctx = {}
-    for module in (market, advanced_stats, context_feat):
+# Layer 2–5 feature modules emit their fixed columns (zero-filled) even with no data,
+# and fixture_features returns the same keys — keeping train/serve aligned.
+DATA_FEATURE_MODULES = [ranking, squad, market, advanced_stats, context_feat]
+
+
+def test_data_feature_groups_emit_fixed_columns_when_empty(sample_results):
+    for module in DATA_FEATURE_MODULES:
+        ctx = {"sources": {}}
         block = module.build(sample_results, ctx)
-        assert block.shape[1] == 0
-        assert module.fixture_features("A", "B", True, ctx) == {}
+        assert list(block.columns) == module.COLUMNS
+        assert len(block) == len(sample_results)
+        fx = module.fixture_features("Germany", "Spain", True, ctx)
+        assert set(fx) == set(module.COLUMNS)
+
+
+def test_only_basic_enabled_by_default():
+    mods = assemble._enabled_modules()
+    assert basic in mods
+    assert ranking not in mods       # Layer 2 groups default off
+    assert market not in mods

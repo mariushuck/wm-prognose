@@ -1,6 +1,8 @@
 """Shared fixtures. Provides an offline results sample so tests need no network."""
 from __future__ import annotations
 
+from itertools import combinations
+
 import pandas as pd
 import pytest
 
@@ -32,16 +34,18 @@ def sample_results() -> pd.DataFrame:
 
 
 @pytest.fixture
-def mini_tournament() -> dict:
-    """A 16-team / 4-group / top-2 bracket (no best-thirds) for fast KO tests."""
-    teams = [f"T{i:02d}" for i in range(1, 17)]
-    groups = {g: teams[i * 4:(i + 1) * 4] for i, g in enumerate("ABCD")}
+def mini_fixtures() -> dict:
+    """An 8-team / 2-group mini schedule (group RR + semis/3rd/final) for the engine."""
+    groups = {"A": ["A1", "A2", "A3", "A4"], "B": ["B1", "B2", "B3", "B4"]}
+    group_stage = []
+    for teams in groups.values():
+        group_stage += [list(p) for p in combinations(teams, 2)]   # 12 matches (1-12)
     return {
-        "format": {"n_groups": 4, "teams_per_group": 4, "advance_top_n": 2, "best_thirds": 0},
+        "format": {"best_thirds": 0},
         "points": {"win": 3, "draw": 1, "loss": 0},
         "groups": groups,
-        "round_of_32": [
-            ["1A", "2B"], ["1C", "2D"],
-            ["1B", "2A"], ["1D", "2C"],
-        ],
+        "group_stage": group_stage,
+        "semi_finals": [["1A", "2B"], ["1B", "2A"]],   # matches 13, 14
+        "third_place": [["L13", "L14"]],               # match 15
+        "final": [["W13", "W14"]],                     # match 16
     }

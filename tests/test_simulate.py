@@ -1,46 +1,39 @@
-"""Simulation logic on a mini bracket (no model / no network needed)."""
+"""Simulation play-fn + bracket integration (no model / no network)."""
 from __future__ import annotations
 
-from src.simulate import Simulator
+import numpy as np
+
+from src import bracket
+from src.simulate import _make_play_fn
 
 
-def _make_sim(mini_tournament, seed=0):
-    # Empty pair_probs -> Simulator falls back to (1/3, 1/3, 1/3) per match.
-    return Simulator(mini_tournament, pair_probs={}, ratings={}, elo_start=1500.0, seed=seed)
+def test_play_fn_samples_valid_scores_and_knockout_winner(mini_fixtures):
+    rng = np.random.default_rng(0)
+    play = _make_play_fn(pair_goals={}, ratings={}, elo_start=1500.0, rng=rng)
+    hg, ag, winner = play("A1", "B2", knockout=True)
+    assert hg >= 0 and ag >= 0
+    assert winner in {"A1", "B2"}
 
 
-def test_probs_fallback_sums_to_one(mini_tournament):
-    sim = _make_sim(mini_tournament)
-    px, pd_, py = sim._probs("T01", "T02")
-    assert abs(px + pd_ + py - 1.0) < 1e-9
+def test_group_match_can_draw(mini_fixtures):
+    rng = np.random.default_rng(0)
+    play = _make_play_fn(pair_goals={}, ratings={}, elo_start=1500.0, rng=rng)
+    # group matches may return winner=None (draws allowed)
+    winners = [play("A1", "A2", knockout=False)[2] for _ in range(20)]
+    assert any(w is None for w in winners)
 
 
-def test_single_run_has_one_champion_and_correct_advancers(mini_tournament):
-    sim = _make_sim(mini_tournament)
-    reached = sim.simulate_once()
-
-    champions = [t for t, s in reached.items() if s == 6]
-    assert len(champions) == 1
-
-    advancers = [t for t, s in reached.items() if s >= 1]
-    # 4 groups x top 2 = 8 teams advance (best_thirds = 0)
-    assert len(advancers) == 8
-
-
-def test_knockout_winner_is_a_participant(mini_tournament):
-    sim = _make_sim(mini_tournament)
-    w = sim._knockout_winner("T01", "T02")
-    assert w in {"T01", "T02"}
-
-
-def test_aggregate_title_prob_sums_to_one(mini_tournament):
-    sim = _make_sim(mini_tournament, seed=7)
-    teams = [t for ts in mini_tournament["groups"].values() for t in ts]
-    n = 200
-    wins = {t: 0 for t in teams}
+def test_one_champion_per_simulation(mini_fixtures):
+    rng = np.random.default_rng(7)
+    play = _make_play_fn(pair_goals={}, ratings={}, elo_start=1500.0, rng=rng)
+    teams = [t for ts in mini_fixtures["groups"].values() for t in ts]
+    n = 100
+    champions = 0
     for _ in range(n):
-        reached = sim.simulate_once()
-        for t, s in reached.items():
-            if s == 6:
-                wins[t] += 1
-    assert sum(wins.values()) == n  # exactly one champion per simulation
+        out = bracket.play_tournament(mini_fixtures, play, ratings={}, rng=rng)
+        champ = [t for t, s in out["reached"].items() if s == 6]
+        assert len(champ) == 1
+        champions += 1
+        # 4 teams advance from the groups each run
+        assert len([t for t, s in out["reached"].items() if s >= 1]) == 4
+    assert champions == n

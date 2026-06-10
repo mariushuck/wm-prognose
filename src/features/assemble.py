@@ -1,8 +1,13 @@
 """Assemble enabled feature groups into the model matrix.
 
-This is the *single* place that reads ``feature_groups.yaml``. It also builds the
-shared ``context`` (current Elo ratings + form/h2h snapshots) so the training
-matrix and the simulator's per-fixture vectors use identical definitions.
+This is the *single* place that reads ``feature_groups.yaml``. It builds the shared
+``context`` (current Elo ratings, form/h2h snapshots, and the cached Layer 2–5
+source tables) so the training matrix and the simulator's per-fixture vectors use
+identical feature definitions.
+
+Each feature module exposes ``prepare(matches, context)`` (fills per-team
+snapshots), ``build(matches, context)`` (the training columns) and
+``fixture_features(home, away, neutral, context)``.
 
 CLI:  python -m src.features --rebuild   (see __main__.py)
 """
@@ -15,26 +20,25 @@ import pandas as pd
 from .. import paths
 from ..config import is_feature_group_enabled, source_cfg
 from ..data_sources import elo_internal
-from . import advanced_stats, basic, context as context_feat, market
+from . import advanced_stats, basic, context as context_feat, market, ranking, squad
 
-# Feature group name (feature_groups.yaml) -> builder module.
+# Feature group name (feature_groups.yaml) -> builder module (1:1).
 GROUP_MODULES = {
     "basic": basic,
+    "ranking": ranking,
+    "squad_value": squad,
     "market_odds": market,
-    "squad_value": market,        # squad value shares the market module
     "advanced_stats": advanced_stats,
     "context": context_feat,
 }
 
+# Layer 2–5 caches that feature builders may consume (data/processed/<name>.parquet).
+SOURCE_CACHES = ["fifa_ranking", "transfermarkt", "statsbomb", "odds", "weather"]
+
 
 def _enabled_modules() -> List:
-    """De-duplicated list of enabled builder modules, in stable order."""
-    seen, mods = set(), []
-    for group, module in GROUP_MODULES.items():
-        if is_feature_group_enabled(group) and id(module) not in seen:
-            seen.add(id(module))
-            mods.append(module)
-    return mods
+    """Enabled builder modules in stable (group-declaration) order."""
+    return [m for g, m in GROUP_MODULES.items() if is_feature_group_enabled(g)]
 
 
 def load_matches() -> pd.DataFrame:
@@ -45,14 +49,32 @@ def load_matches() -> pd.DataFrame:
     return pd.read_parquet(paths.MATCHES_TABLE)
 
 
+def _load_source_caches() -> Dict[str, pd.DataFrame]:
+    """Read each available Layer 2–5 cache; missing ones become empty frames."""
+    out: Dict[str, pd.DataFrame] = {}
+    for name in SOURCE_CACHES:
+        path = paths.DATA_PROCESSED / f"{name}.parquet"
+        out[name] = pd.read_parquet(path) if path.exists() else pd.DataFrame()
+    return out
+
+
 def build_context(matches_df: pd.DataFrame) -> dict:
-    """Current Elo ratings + Elo config baseline (form/h2h filled by basic.build)."""
+    """Current Elo ratings + Elo baseline + cached source tables."""
     elo_cfg = source_cfg("elo_internal")
     table = elo_internal.EloTable.from_results(matches_df, elo_cfg)
     return {
         "ratings": table.ratings,
         "elo_start": float(elo_cfg.get("start_rating", 1500.0)),
+        "sources": _load_source_caches(),
     }
+
+
+def prepare_inference_context(matches_df: pd.DataFrame) -> dict:
+    """Context with every enabled module's snapshots populated (for predict/sim)."""
+    context = build_context(matches_df)
+    for module in _enabled_modules():
+        module.prepare(matches_df, context)
+    return context
 
 
 def build_training_matrix(

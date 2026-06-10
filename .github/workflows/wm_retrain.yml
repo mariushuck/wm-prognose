@@ -22,10 +22,11 @@ jobs:
           python-version: "3.11"
       - name: Install dependencies
         run: pip install -r requirements.txt
-      - name: Ingest + retrain + simulate
+      - name: Ingest + retrain goals model + score report + simulate
         run: |
           python -m src.ingestion --force
-          python -m src.model --train --tag "$MODEL_TAG"
+          python -m src.goals --train --tag "$MODEL_TAG"
+          python -m src.predict_fixtures --tag "$MODEL_TAG"
           python main.py --simulate-tournament --tag "$MODEL_TAG" --sims 5000
       - name: Commit model & outputs
         run: |
