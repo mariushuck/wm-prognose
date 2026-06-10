@@ -1,0 +1,22 @@
+name: wm_odds_refresh
+
+# Hourly odds snapshot (Layer 2). No-op-safe when ODDS_API_KEY is unset.
+on:
+  schedule:
+    - cron: "0 * * * *"   # top of every hour
+  workflow_dispatch:
+
+jobs:
+  odds:
+    runs-on: ubuntu-latest
+    env:
+      ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Snapshot odds
+        run: python -m src.data_sources.odds

@@ -1,0 +1,13 @@
+# Toggle feature groups for ablation tests (which group buys how much LogLoss?).
+# A group switched off (or whose source data is absent) contributes no columns.
+feature_groups:
+  basic:           true    # Elo, form, rest, neutral, H2H — always available
+  market_odds:     false   # needs Layer 2 (odds) active
+  squad_value:     false   # needs Layer 3 (transfermarkt) active
+  advanced_stats:  false   # needs Layer 4 (statsbomb) active
+  context:         false   # needs Layer 5 (venues/weather/injuries)
+
+# Tunables shared by feature builders.
+params:
+  form_window: 5           # matches in rolling form window
+  h2h_window: 10           # most recent head-to-head matches to summarize

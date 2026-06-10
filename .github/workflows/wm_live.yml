@@ -1,0 +1,29 @@
+name: wm_live
+
+# Daily during the tournament: refresh results, re-simulate, commit outputs.
+on:
+  schedule:
+    - cron: "0 5 * * *"   # 05:00 UTC daily
+  workflow_dispatch:
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Update played matches (rolls Elo & form)
+        run: python -m src.update_played_matches
+      - name: Re-simulate with latest model
+        run: python main.py --simulate-tournament --sims 5000
+      - name: Commit refreshed outputs
+        run: |
+          git config user.name "wm-prognose-bot"
+          git config user.email "actions@github.com"
+          git add outputs/ data/processed/ || true
+          git commit -m "live: daily refresh $(date -u +%F)" || echo "nothing to commit"
+          git push || echo "push skipped"

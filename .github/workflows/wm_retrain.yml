@@ -1,0 +1,36 @@
+name: wm_retrain
+
+# Manual full retraining with an explicit tag (e.g. after_group_stage).
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Model tag (filename suffix)"
+        required: true
+        default: "v2_full"
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+    env:
+      ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+      MODEL_TAG: ${{ inputs.tag }}     # via env to avoid run-line injection
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Ingest + retrain + simulate
+        run: |
+          python -m src.ingestion --force
+          python -m src.model --train --tag "$MODEL_TAG"
+          python main.py --simulate-tournament --tag "$MODEL_TAG" --sims 5000
+      - name: Commit model & outputs
+        run: |
+          git config user.name "wm-prognose-bot"
+          git config user.email "actions@github.com"
+          git add models/ outputs/ || true
+          git commit -m "retrain: $MODEL_TAG" || echo "nothing to commit"
+          git push || echo "push skipped"

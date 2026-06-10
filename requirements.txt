@@ -1,0 +1,15 @@
+# --- Core (Layer 1 functional baseline) ---
+pandas>=2.0
+numpy>=1.24
+scikit-learn>=1.3
+xgboost>=2.0
+pyyaml>=6.0
+requests>=2.31
+joblib>=1.3
+python-dateutil>=2.8
+pyarrow>=14.0          # parquet output
+pytest>=7.4
+
+# --- Optional, per data layer (uncomment when activating) ---
+# soccerdata>=1.6      # Layer 3/4: FBref via src/data_sources/fbref.py
+# statsbombpy>=1.11    # Layer 4: StatsBomb xG via src/data_sources/statsbomb.py

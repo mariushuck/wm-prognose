@@ -1,0 +1,66 @@
+# Central control for every data layer. Flip `enabled` to activate a source.
+# A disabled source still satisfies the loader contract (returns an empty,
+# correctly-typed DataFrame) so the pipeline runs no matter what is on.
+
+# ---------------- Layer 1 — Basis (default on) ----------------
+results:
+  enabled: true
+  # martj42/international_results — raw GitHub CSVs.
+  base_url: "https://raw.githubusercontent.com/martj42/international_results/master"
+  files:
+    results: "results.csv"
+    shootouts: "shootouts.csv"
+    goalscorers: "goalscorers.csv"
+  cache_max_age_hours: 24      # re-download only if cache older than this
+
+elo_internal:
+  enabled: true
+  start_rating: 1500.0
+  k_factor: 40.0               # base K, scaled by margin of victory
+  home_advantage: 65.0         # Elo points added to the home side (0 if neutral)
+
+# ---------------- Layer 2 — Markt & Quoten ----------------
+odds:
+  enabled: false
+  api_key: "${ODDS_API_KEY}"   # interpolated from env / GitHub secret
+  base_url: "https://api.the-odds-api.com/v4"
+  sport: "soccer_fifa_world_cup"
+  regions: "eu"
+  markets: "h2h"
+
+fifa_ranking:
+  enabled: false
+  # Kaggle: cashncarry/fifaworldranking -> data/raw/fifa_ranking/fifa_ranking.csv
+  filename: "fifa_ranking.csv"
+
+# ---------------- Layer 3 — Kader & Marktwerte ----------------
+fbref:
+  enabled: false
+  rate_limit_seconds: 4        # be polite; see §9 legal notes
+  seasons: ["2022", "2023", "2024"]
+
+transfermarkt:
+  enabled: false
+  # No scraping (§9). Manual file only.
+  filename: "squad_values.yaml"
+
+# ---------------- Layer 4 — Advanced Stats (xG) ----------------
+statsbomb:
+  enabled: false
+  competitions:                # competition_id / season_id pairs (World Cups)
+    - {competition_id: 43, season_id: 3}    # 2018
+    - {competition_id: 43, season_id: 106}  # 2022
+
+# ---------------- Layer 5 — Kontext ----------------
+weather:
+  enabled: false
+  base_url: "https://api.open-meteo.com/v1/forecast"
+  hours_before_kickoff: 24
+
+venues:
+  enabled: true                # cheap local YAML; used for travel distances
+  config_file: "venues_2026.yaml"
+
+injuries:
+  enabled: false
+  filename: "injuries.yaml"    # manual, under data/raw/
